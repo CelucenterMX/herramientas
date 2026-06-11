@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>KM Celucenter</title>
+<style>
+  :root {
+    --brand: #E31837; --brand-dk: #b31229;
+    --bg: #f5f5f7; --card: #fff;
+    --text: #1d1d1f; --sub: #6e6e73; --border: #d2d2d7;
+    --green: #28a745; --radius: 12px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+  /* HEADER */
+  .hdr { background:var(--brand); color:#fff; padding:14px 18px; display:flex; align-items:center; gap:10px; position:sticky; top:0; z-index:9; box-shadow:0 2px 8px rgba(0,0,0,.18); }
+  .hdr-title { font-size:17px; font-weight:700; }
+  .hdr-sub { font-size:12px; opacity:.8; }
+  .hdr-out { margin-left:auto; background:rgba(255,255,255,.2); border:none; color:#fff; border-radius:8px; padding:5px 11px; font-size:13px; cursor:pointer; }
+
+  /* LOGIN */
+  #login { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:24px; }
+  .login-card { background:var(--card); border-radius:16px; padding:28px 22px; width:100%; max-width:360px; box-shadow:0 4px 20px rgba(0,0,0,.1); }
+  .login-logo { font-size:44px; text-align:center; margin-bottom:6px; }
+  .login-title { font-size:21px; font-weight:700; color:var(--brand); text-align:center; margin-bottom:2px; }
+  .login-sub { font-size:13px; color:var(--sub); text-align:center; margin-bottom:22px; }
+
+  /* CONTENT */
+  .wrap { padding:14px; max-width:480px; margin:0 auto; }
+  .card { background:var(--card); border-radius:var(--radius); padding:16px; margin-bottom:12px; box-shadow:0 1px 4px rgba(0,0,0,.07); }
+  .ctitle { font-size:12px; font-weight:700; color:var(--sub); text-transform:uppercase; letter-spacing:.05em; margin-bottom:11px; }
+
+  label { display:block; font-size:13px; font-weight:600; color:var(--sub); margin-bottom:5px; }
+  select, input[type=number], input[type=text] {
+    width:100%; padding:12px 13px; font-size:16px;
+    border:1.5px solid var(--border); border-radius:10px;
+    background:#fff; color:var(--text); margin-bottom:13px;
+    -webkit-appearance:none; transition:border-color .2s;
+  }
+  select:focus, input:focus { outline:none; border-color:var(--brand); }
+  select:disabled, input:disabled { background:#f0f0f3; color:var(--sub); }
+
+  .tgroup { display:flex; gap:8px; margin-bottom:13px; }
+  .tbtn { flex:1; padding:11px 6px; font-size:14px; font-weight:600; border:2px solid var(--border); border-radius:10px; background:#f5f5f7; color:var(--text); cursor:pointer; transition:all .15s; }
+  .tbtn.on { border-color:var(--brand); background:var(--brand); color:#fff; }
+
+  .btn { width:100%; padding:14px; font-size:16px; font-weight:700; border:none; border-radius:12px; cursor:pointer; transition:all .18s; margin-bottom:10px; }
+  .btn-save { background:var(--green); color:#fff; }
+  .btn-save:disabled { opacity:.45; cursor:not-allowed; }
+  .btn-sec { background:#e8e8ed; color:var(--text); }
+  .btn-brand { background:var(--brand); color:#fff; }
+  .btn-brand:disabled { opacity:.45; cursor:not-allowed; }
+
+  .badge { text-align:center; font-size:13px; color:var(--sub); padding:8px; background:#f0f0f3; border-radius:8px; margin-bottom:12px; display:none; }
+  .badge.show { display:block; }
+  .badge strong { color:var(--text); font-size:15px; }
+
+  .vst { padding:10px 13px; border-radius:10px; font-size:13px; font-weight:500; margin-bottom:12px; display:none; }
+  .vst.ok  { background:#d4edda; color:#155724; display:block; }
+  .vst.occ { background:#fff3cd; color:#856404; display:block; }
+
+  .msg { padding:12px 14px; border-radius:10px; font-size:14px; font-weight:500; margin-top:4px; display:none; }
+  .msg.show { display:block; }
+  .msg.ok  { background:#d4edda; color:#155724; }
+  .msg.err { background:#f8d7da; color:#721c24; }
+  .msg.load{ background:#cce5ff; color:#004085; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="login-card">
+    <div class="login-logo">🚗</div>
+    <div class="login-title">Registro de KM</div>
+    <div class="login-sub">Celucenter — Control de Flota</div>
+    <label>¿Quién eres?</label>
+    <select id="selUser" style="margin-bottom:18px">
+      <option value="">Cargando usuarios...</option>
+    </select>
+    <button class="btn btn-brand" id="btnLogin" onclick="doLogin()" disabled>Entrar →</button>
+    <div id="loginMsg" class="msg" style="margin-top:10px;margin-bottom:0"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+  <div class="hdr">
+    <div>
+      <div class="hdr-title">🚗 Registro de KM</div>
+      <div class="hdr-sub" id="hdrUser">Celucenter</div>
+    </div>
+    <button class="hdr-out" onclick="doLogout()">Salir</button>
+  </div>
+
+  <div class="wrap">
+
+    <!-- MOTIVO -->
+    <div class="card">
+      <div class="ctitle">Motivo del recorrido</div>
+      <div class="tgroup">
+        <button class="tbtn" id="bVis"  onclick="setMotivo('visita')">Visita tienda</button>
+        <button class="tbtn" id="bPer"  onclick="setMotivo('perifoneo')">Perifoneo</button>
+        <button class="tbtn" id="bOtr"  onclick="setMotivo('otro')">Otro</button>
+      </div>
+      <div id="boxStore" style="display:none">
+        <label>Sucursal visitada</label>
+        <select id="selStore">
+          <option value="">Selecciona sucursal...</option>
+        </select>
+      </div>
+      <div id="boxOtro" style="display:none">
+        <label>Descripción</label>
+        <input type="text" id="txtOtro" placeholder="Ej: Entrega de equipo, cobranza...">
+      </div>
+    </div>
+
+    <!-- VEHÍCULO -->
+    <div class="card">
+      <div class="ctitle">Vehículo</div>
+      <div class="tgroup">
+        <button class="tbtn" id="bRec" onclick="setMov('recibo')">Recibo</button>
+        <button class="tbtn" id="bEnt" onclick="setMov('entrego')">Entrego</button>
+      </div>
+      <label>Vehículo</label>
+      <select id="selVeh" onchange="onVeh()" disabled>
+        <option value="">Cargando vehículos...</option>
+      </select>
+      <div id="vst" class="vst"></div>
+      <div id="kmBadge" class="badge"></div>
+      <label>Kilometraje actual</label>
+      <input type="number" id="inKm" placeholder="Ej: 186520" min="1" max="999999" disabled oninput="upSave()">
+    </div>
+
+    <button class="btn btn-save" id="btnSave" onclick="doSave()" disabled>💾 Guardar Registro</button>
+    <div id="saveMsg" class="msg"></div>
+
+  </div>
+</div>
+
+<script>
+// ── CONFIG ───────────────────────────────────────────────
+const BX = 'https://celucenter.bitrix24.es/rest/9/m616r1ki7xm70bjp';
+const IBLOCK_VEH   = 49;
+const SEC_VEH      = 213;
+const VEH_IDS      = new Set(['173','175','179','37703','37735','45549','45551']);
+const IBLOCK_KM    = 303;   // registros resumen
+const IBLOCK_DET   = 301;   // registros detalle
+const MAINT_CHAT   = 'chat22301';
+const USER_IDS     = [9,7,5,3035,45,91,34739];
+const STORES = ['ATEQUIZA','ATOYAC','COLOMO','CONTLA','COTIJA','GOMEZ FARIAS',
+  'HUESCALAPA','JIQUILPAN','JOCOTEPEC','MATRIZ','PONCITLAN','SAN ANDRES',
+  'SAN GABRIEL','SAN LUIS SOYATLAN','SANTA CRUZ','TAMAZULA CH','TAMAZULA RC',
+  'TECALITLAN','TECALITLAN CH','TEOCUITATLAN','TIZAPAN','TONAYA','TUXPAN',
+  'USMAJAC','ZAPOTILTIC','ZAPOTILTIC REF','ZAPOTLAN'];
+
+// ── STATE ────────────────────────────────────────────────
+let user = null;          // {id, name}
+let motivo = null;
+let mov = null;
+let kmPrev = 0;
+let vehicles = [];
+
+// ── BITRIX CALL ──────────────────────────────────────────
+async function bx(method, params={}) {
+  const r = await fetch(`${BX}/${method}`, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(params)
+  });
+  return r.json();
+}
+
+// ── LOGIN ────────────────────────────────────────────────
+async function loadUsers() {
+  try {
+    const r = await bx('user.get', {ID: USER_IDS, ACTIVE: true});
+    const sel = document.getElementById('selUser');
+    sel.innerHTML = '<option value="">Selecciona tu nombre...</option>';
+    const users = (r.result || []).map(u => ({
+      id: String(u.ID),
+      name: [u.NAME, u.LAST_NAME].filter(Boolean).join(' ') || `Usuario ${u.ID}`
+    })).sort((a,b) => a.name.localeCompare(b.name));
+    users.forEach(u => {
+      const o = document.createElement('option');
+      o.value = u.id; o.textContent = u.name;
+      sel.appendChild(o);
+    });
+    sel.onchange = () => document.getElementById('btnLogin').disabled = !sel.value;
+  } catch(e) {
+    showMsg('loginMsg','err','Error cargando usuarios. Revisa conexión.');
+  }
+}
+
+function doLogin() {
+  const sel = document.getElementById('selUser');
+  if (!sel.value) return;
+  user = { id: sel.value, name: sel.options[sel.selectedIndex].text };
+  localStorage.setItem('km_user', JSON.stringify(user));
+  showApp();
+}
+
+function doLogout() {
+  user = null;
+  localStorage.removeItem('km_user');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login').style.display = 'flex';
+  motivo = mov = null;
+}
+
+function showApp() {
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('hdrUser').textContent = user.name;
+  initApp();
+}
+
+// ── APP ──────────────────────────────────────────────────
+function initApp() {
+  // Stores
+  const ss = document.getElementById('selStore');
+  ss.innerHTML = '<option value="">Selecciona sucursal...</option>';
+  STORES.forEach(s => { const o=document.createElement('option'); o.value=o.textContent=s; ss.appendChild(o); });
+  ss.onchange = upSave;
+  document.getElementById('txtOtro').oninput = upSave;
+  loadVehicles();
+}
+
+async function loadVehicles() {
+  try {
+    const r = await bx('lists.element.get', {
+      IBLOCK_TYPE_ID:'lists', IBLOCK_ID: IBLOCK_VEH, SECTION_ID: SEC_VEH
+    });
+    vehicles = (r.result || [])
+      .filter(v => VEH_IDS.has(v.ID))
+      .map(v => {
+        const kmRaw = v.PROPERTY_1509 || {};
+        const km = parseInt(Object.values(kmRaw)[0] || 0) || 0;
+        const p161 = v.PROPERTY_161 || {};
+        const plate = (Object.values(p161)[0]?.TEXT || '').split('<br>')[0].trim();
+        return { id: v.ID, name: v.NAME.trim(), km, plate,
+                 p161: Object.values(p161)[0] || '', p165: Object.values(v.PROPERTY_165||{})[0]||'' };
+      })
+      .sort((a,b)=>a.name.localeCompare(b.name));
+
+    const sel = document.getElementById('selVeh');
+    sel.innerHTML = '<option value="">Selecciona vehículo...</option>';
+    vehicles.forEach(v => {
+      const o = document.createElement('option');
+      o.value = v.id;
+      o.textContent = v.name + (v.plate ? ` — ${v.plate}` : '');
+      sel.appendChild(o);
+    });
+    sel.disabled = false;
+  } catch(e) {
+    showMsg('saveMsg','err','Error cargando vehículos: '+e.message);
+  }
+}
+
+// ── MOTIVO / MOV ─────────────────────────────────────────
+function setMotivo(m) {
+  motivo = m;
+  ['Vis','Per','Otr'].forEach(x => id('b'+x).classList.remove('on'));
+  id(m==='visita'?'bVis':m==='perifoneo'?'bPer':'bOtr').classList.add('on');
+  id('boxStore').style.display = m==='visita'  ? 'block' : 'none';
+  id('boxOtro').style.display  = m==='otro'    ? 'block' : 'none';
+  upSave();
+}
+
+function setMov(m) {
+  mov = m;
+  id('bRec').classList.toggle('on', m==='recibo');
+  id('bEnt').classList.toggle('on', m==='entrego');
+  upSave();
+}
+
+// ── VEHICLE SELECT ───────────────────────────────────────
+function onVeh() {
+  const sel = id('selVeh');
+  const veh = vehicles.find(v => v.id === sel.value);
+  if (!veh) { id('inKm').disabled=true; id('vst').className='vst'; id('kmBadge').className='badge'; return; }
+  kmPrev = veh.km;
+  id('vst').className = 'vst ok';
+  id('vst').textContent = '✅ Disponible';
+  id('kmBadge').className = 'badge show';
+  id('kmBadge').innerHTML = `KM registrado: <strong>${veh.km.toLocaleString('es-MX')}</strong>`;
+  const inp = id('inKm');
+  inp.disabled = false;
+  inp.value = '';
+  inp.placeholder = `Mayor a ${veh.km.toLocaleString('es-MX')}`;
+  upSave();
+}
+
+function upSave() {
+  const veh = id('selVeh').value;
+  const km  = id('inKm').value;
+  let extra = true;
+  if (motivo==='visita')   extra = !!id('selStore').value;
+  if (motivo==='otro')     extra = !!id('txtOtro').value.trim();
+  id('btnSave').disabled = !(motivo && mov && veh && km && extra);
+}
+
+// ── SAVE ─────────────────────────────────────────────────
+async function doSave() {
+  const vehId  = id('selVeh').value;
+  const veh    = vehicles.find(v=>v.id===vehId);
+  const kmNew  = parseInt(id('inKm').value);
+
+  if (kmNew <= kmPrev) {
+    showMsg('saveMsg','err',`❌ El KM debe ser mayor al registrado (${kmPrev.toLocaleString('es-MX')})`);
+    return;
+  }
+
+  const motDetalle = motivo==='visita'    ? id('selStore').value :
+                     motivo==='perifoneo' ? 'Perifoneo' :
+                     id('txtOtro').value.trim() || 'No especificado';
+
+  const movLabel   = mov==='recibo' ? 'RECIBE' : 'ENTREGA';
+  const today      = new Date().toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'});
+  const motLabel   = motivo==='visita' ? `Visita tienda: ${motDetalle}` : motDetalle;
+  const diff       = kmNew - kmPrev;
+
+  id('btnSave').disabled = true;
+  showMsg('saveMsg','load','💾 Guardando en Bitrix24...');
+
+  try {
+    // 1. Crear registro resumen (IBLOCK 303)
+    await bx('lists.element.add', {
+      IBLOCK_TYPE_ID:'lists', IBLOCK_ID: IBLOCK_KM,
+      ELEMENT_CODE: `km_${vehId}_${Date.now()}`,
+      FIELDS: {
+        NAME: `${veh.name} — ${movLabel} — ${today}`,
+        PROPERTY_1891: user.name,
+        PROPERTY_1893: veh.name,
+        PROPERTY_1895: `${movLabel} — ${motLabel}`,
+        PROPERTY_1897: String(kmPrev),
+        PROPERTY_1899: String(kmNew),
+        PROPERTY_1901: '',
+      }
+    });
+
+    // 2. Crear registro detalle (IBLOCK 301)
+    await bx('lists.element.add', {
+      IBLOCK_TYPE_ID:'lists', IBLOCK_ID: IBLOCK_DET,
+      ELEMENT_CODE: `kmdet_${vehId}_${Date.now()}`,
+      FIELDS: {
+        NAME: `${veh.name} — ${movLabel} — ${today}`,
+        PROPERTY_1939: today,
+        PROPERTY_1941: user.name,
+        PROPERTY_1943: veh.name,
+        PROPERTY_1945: movLabel,
+        PROPERTY_1947: motLabel,
+        PROPERTY_1949: String(kmPrev),
+        PROPERTY_1951: String(kmNew),
+        PROPERTY_1953: String(diff),
+        PROPERTY_1955: '',
+      }
+    });
+
+    // 3. Actualizar KM del vehículo (IBLOCK 49)
+    await bx('lists.element.update', {
+      IBLOCK_TYPE_ID:'lists', IBLOCK_ID: IBLOCK_VEH, ELEMENT_ID: vehId,
+      FIELDS: {
+        NAME: veh.name,
+        PROPERTY_161: veh.p161,
+        PROPERTY_165: veh.p165,
+        PROPERTY_1509: String(kmNew),
+      }
+    });
+
+    // 4. Notificar chat de mantenimiento
+    await bx('im.message.add', {
+      DIALOG_ID: MAINT_CHAT,
+      MESSAGE: `[b]Registro de Kilometraje — ${movLabel}[/b]\nVehículo: ${veh.name}\nMotivo: ${motLabel}\nKM anterior: ${kmPrev.toLocaleString('es-MX')}\nKM nuevo: ${kmNew.toLocaleString('es-MX')}\nDiferencia: +${diff.toLocaleString('es-MX')} km\nRegistrado por: ${user.name}\nFecha: ${today}`
+    });
+
+    showMsg('saveMsg','ok',`✅ Guardado — ${veh.name} ${kmNew.toLocaleString('es-MX')} km`);
+    resetForm();
+    loadVehicles();
+
+  } catch(e) {
+    showMsg('saveMsg','err','❌ Error: '+e.message);
+    id('btnSave').disabled = false;
+  }
+}
+
+function resetForm() {
+  motivo = mov = null;
+  ['bVis','bPer','bOtr','bRec','bEnt'].forEach(x=>id(x).classList.remove('on'));
+  id('boxStore').style.display = id('boxOtro').style.display = 'none';
+  id('selStore').value = id('txtOtro').value = id('selVeh').value = id('inKm').value = '';
+  id('inKm').disabled = true;
+  id('vst').className = 'vst';
+  id('kmBadge').className = 'badge';
+  upSave();
+}
+
+// ── HELPERS ──────────────────────────────────────────────
+function id(x){ return document.getElementById(x); }
+function showMsg(elId, type, text) {
+  const el=id(elId); el.className='msg show '+type; el.textContent=text;
+}
+
+// ── BOOT ─────────────────────────────────────────────────
+(function(){
+  loadUsers();
+  const saved = localStorage.getItem('km_user');
+  if (saved) { try { user=JSON.parse(saved); showApp(); } catch(e){} }
+})();
+</script>
+</body>
+</html>

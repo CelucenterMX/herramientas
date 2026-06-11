@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual KM — Celucenter</title>
+<style>
+  :root { --brand:#E31837; --bg:#f5f5f7; --card:#fff; --text:#1d1d1f; --sub:#6e6e73; --border:#d2d2d7; --green:#28a745; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); }
+
+  .hdr { background:var(--brand); color:#fff; padding:20px 24px; }
+  .hdr h1 { font-size:22px; font-weight:700; }
+  .hdr p  { font-size:13px; opacity:.8; margin-top:2px; }
+
+  .wrap { max-width:720px; margin:0 auto; padding:20px 16px 40px; }
+
+  .card { background:var(--card); border-radius:14px; padding:20px; margin-bottom:16px; box-shadow:0 1px 4px rgba(0,0,0,.07); }
+  .card h2 { font-size:16px; font-weight:700; color:var(--brand); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th { background:#f0f0f3; color:var(--sub); font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding:9px 12px; text-align:left; }
+  td { padding:10px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  a { color:var(--brand); text-decoration:none; font-size:13px; word-break:break-all; }
+  a:hover { text-decoration:underline; }
+
+  .steps { counter-reset:step; }
+  .step { display:flex; gap:14px; margin-bottom:14px; }
+  .step:last-child { margin-bottom:0; }
+  .step-num { width:32px; height:32px; min-width:32px; border-radius:50%; background:var(--brand); color:#fff; font-weight:700; font-size:15px; display:flex; align-items:center; justify-content:center; }
+  .step-body h3 { font-size:15px; font-weight:700; margin-bottom:4px; }
+  .step-body p, .step-body li { font-size:14px; color:var(--sub); line-height:1.5; }
+  .step-body ul { padding-left:16px; }
+
+  .flow { background:#f0f0f3; border-radius:10px; padding:14px 16px; font-family:monospace; font-size:13px; line-height:1.8; color:var(--text); }
+  .flow span { color:var(--brand); font-weight:700; }
+
+  .rule { display:flex; gap:10px; align-items:flex-start; margin-bottom:10px; font-size:14px; }
+  .rule:last-child { margin-bottom:0; }
+  .rule-icon { font-size:18px; min-width:24px; }
+
+  .badge { display:inline-block; padding:2px 8px; border-radius:20px; font-size:12px; font-weight:600; }
+  .badge-green { background:#d4edda; color:#155724; }
+  .badge-blue  { background:#cce5ff; color:#004085; }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <h1>🚗 Manual — Registro de Kilometraje</h1>
+  <p>Celucenter · Control de Flota · v1.0</p>
+</div>
+
+<div class="wrap">
+
+  <!-- LINKS -->
+  <div class="card">
+    <h2>🔗 Links</h2>
+    <table>
+      <thead><tr><th>Recurso</th><th>Link</th><th>Acceso</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Formulario de registro</strong></td>
+          <td>
+            <a href="https://piztian.github.io/celucenter-training/km/km_bitrix.html" target="_blank">GitHub Pages (público)</a><br>
+            <code style="font-size:12px;color:var(--sub)">~/clawd/templates/km_bitrix.html</code>
+          </td>
+          <td><span class="badge badge-green">Web</span></td>
+        </tr>
+        <tr>
+          <td><strong>Lista de vehículos</strong></td>
+          <td><a href="https://celucenter.bitrix24.es/company/lists/49/view/0/?list_section_id=" target="_blank">Bitrix24 · Lista 49</a></td>
+          <td><span class="badge badge-green">Bitrix</span></td>
+        </tr>
+        <tr>
+          <td><strong>KM Registros (resumen)</strong></td>
+          <td><a href="https://celucenter.bitrix24.es/company/lists/303/view/0/?list_section_id=" target="_blank">Bitrix24 · Lista 303</a></td>
+          <td><span class="badge badge-green">Bitrix</span></td>
+        </tr>
+        <tr>
+          <td><strong>KM Detalle</strong></td>
+          <td><a href="https://celucenter.bitrix24.es/company/lists/301/view/0/?list_section_id=" target="_blank">Bitrix24 · Lista 301</a></td>
+          <td><span class="badge badge-green">Bitrix</span></td>
+        </tr>
+        <tr>
+          <td><strong>Chat mantenimiento</strong></td>
+          <td><a href="https://celucenter.bitrix24.es/im/dialog/chat22301/" target="_blank">Chat 22301</a></td>
+          <td><span class="badge badge-green">Bitrix</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- FLUJO -->
+  <div class="card">
+    <h2>🚗 Flujo de uso</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>Abrir el formulario</h3>
+          <p>Abre el archivo <code>km_bitrix.html</code> en el navegador. Selecciona tu nombre de la lista y toca <strong>Entrar</strong>.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>Seleccionar motivo</h3>
+          <ul>
+            <li><strong>Visita tienda</strong> → elige la sucursal</li>
+            <li><strong>Perifoneo</strong> → no requiere detalle</li>
+            <li><strong>Otro</strong> → escribe una descripción</li>
+          </ul>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>Movimiento y vehículo</h3>
+          <ul>
+            <li><strong>Recibo</strong> — cuando tomas el vehículo</li>
+            <li><strong>Entrego</strong> — cuando lo devuelves</li>
+            <li>Selecciona el vehículo de la lista</li>
+          </ul>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h3>Ingresar KM</h3>
+          <p>Escribe el número del odómetro del vehículo en ese momento. Debe ser mayor al KM registrado anteriormente.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <h3>Guardar</h3>
+          <p>Toca <strong>💾 Guardar Registro</strong>. Aparecerá una confirmación verde ✅ cuando todo esté correcto.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUÉ PASA -->
+  <div class="card">
+    <h2>📊 ¿Qué pasa al guardar?</h2>
+    <div class="flow">
+      Formulario → <span>Lista 303</span> &nbsp;registro resumen<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span>Lista 301</span> &nbsp;registro detalle + diferencia de km<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span>Lista 49 &nbsp;</span> actualiza KM actual del vehículo<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span>Chat &nbsp;&nbsp;&nbsp;&nbsp;</span> notificación automática a mantenimiento
+    </div>
+  </div>
+
+  <!-- REGLAS -->
+  <div class="card">
+    <h2>⚠️ Reglas importantes</h2>
+    <div class="rule"><div class="rule-icon">📈</div><div>El KM siempre debe ser <strong>mayor al registrado anteriormente</strong>. Si el sistema muestra KM actual 124,913, debes poner 124,914 o más.</div></div>
+    <div class="rule"><div class="rule-icon">🔄</div><div>Registrar <strong>Recibo</strong> al tomar el vehículo y <strong>Entrego</strong> al devolverlo. Siempre en pares.</div></div>
+    <div class="rule"><div class="rule-icon">✍️</div><div>El KM se ingresa <strong>manualmente</strong> — no hay OCR. Revisa bien el odómetro antes de escribir.</div></div>
+    <div class="rule"><div class="rule-icon">👤</div><div>Selecciona <strong>tu nombre correcto</strong> al entrar. El registro queda a tu nombre en Bitrix24.</div></div>
+  </div>
+
+  <div class="card" style="text-align:center">
+    <p style="font-size:13px;color:var(--sub);margin-bottom:8px">Links directos</p>
+    <a href="https://piztian.github.io/celucenter-training/km/km_bitrix.html" target="_blank" style="display:inline-block;background:var(--brand);color:#fff;padding:10px 20px;border-radius:10px;font-weight:700;font-size:14px;margin-bottom:6px">🚗 Abrir Formulario KM</a><br>
+    <a href="https://piztian.github.io/celucenter-training/km/km_manual.html" target="_blank" style="font-size:13px;color:var(--sub)">📋 Ver este manual en línea</a>
+  </div>
+  <p style="text-align:center;font-size:12px;color:var(--sub);margin-top:8px">Celucenter · Control de Flota · 2026</p>
+</div>
+
+</body>
+</html>
