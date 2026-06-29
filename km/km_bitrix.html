@@ -156,6 +156,18 @@ const STORES = ['ATEQUIZA','ATOYAC','COLOMO','CONTLA','COTIJA','GOMEZ FARIAS',
   'TECALITLAN','TECALITLAN CH','TEOCUITATLAN','TIZAPAN','TONAYA','TUXPAN',
   'USMAJAC','ZAPOTILTIC','ZAPOTILTIC REF','ZAPOTLAN'];
 
+// Mapeo tienda → contacto CRM (para BP 3269 visita rutinaria)
+const STORE_CRM = {
+  'ATEQUIZA':'5727','ATOYAC':'16367','COLOMO':'3551','CONTLA':'21003',
+  'COTIJA':'17379','GOMEZ FARIAS':'1419','HUESCALAPA':'7691','JIQUILPAN':'3557',
+  'JOCOTEPEC':'10283','MATRIZ':'3563','PONCITLAN':'3567','SAN ANDRES':'19103',
+  'SAN GABRIEL':'9047','SAN LUIS SOYATLAN':'21005','SANTA CRUZ':'3569',
+  'TAMAZULA CH':'3573','TAMAZULA RC':'3575','TECALITLAN CH':'14177',
+  'TECALITLAN':'3577','TEOCUITATLAN':'17381','TIZAPAN':'3579','TONAYA':'8727',
+  'TUXPAN':'3581','USMAJAC':'16363','ZAPOTILTIC':'3585','ZAPOTILTIC REF':'18627',
+  'ZAPOTLAN':'8167',
+};
+
 // ── STATE ────────────────────────────────────────────────
 let user = null;          // {id, name}
 let motivo = null;
@@ -375,6 +387,31 @@ async function doSave() {
       DIALOG_ID: MAINT_CHAT,
       MESSAGE: `[b]Registro de Kilometraje — ${movLabel}[/b]\nVehículo: ${veh.name}\nMotivo: ${motLabel}\nKM anterior: ${kmPrev.toLocaleString('es-MX')}\nKM nuevo: ${kmNew.toLocaleString('es-MX')}\nDiferencia: +${diff.toLocaleString('es-MX')} km\nRegistrado por: ${user.name}\nFecha: ${today}`
     });
+
+    // 5. Si visita tienda + recibo → trigger BP 3269
+    if (motivo === 'visita' && mov === 'recibo' && motDetalle) {
+      const crmId = STORE_CRM[motDetalle];
+      if (crmId) {
+        try {
+          // Asignar responsable al contacto CRM
+          await bx('crm.contact.update', {
+            id: crmId, fields: { ASSIGNED_BY_ID: user.id }
+          });
+          // Comentario en timeline
+          await bx('crm.timeline.comment.add', {
+            fields: {
+              ENTITY_ID: crmId, ENTITY_TYPE: 'contact',
+              COMMENT: `Visita registrada por ${user.name} (vehículo: ${veh.name})`
+            }
+          });
+          // Iniciar BP 3269
+          await bx('bizproc.workflow.start', {
+            TEMPLATE_ID: 3269,
+            DOCUMENT_ID: ['crm','CCrmDocumentContact',`CONTACT_${crmId}`]
+          });
+        } catch(e) { console.warn('BP 3269 error:', e); }
+      }
+    }
 
     showMsg('saveMsg','ok',`✅ Guardado — ${veh.name} ${kmNew.toLocaleString('es-MX')} km`);
     resetForm();
